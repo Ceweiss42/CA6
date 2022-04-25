@@ -332,6 +332,12 @@ class Vec:
         """returns string representation of this Vec object"""
         return str(self.elements) # does NOT need further implementation
 
+    def norm(self, p):
+        #p = int
+        #out = float
+        #norm = 
+        pass
+
 
 # 1. Add a method `norm(p)` to your `Vec` class so that if `u` is a `Vec` object, then `u.norm(p)` returns the $L_p$-norm of vector `u`.  Recall that the $L_p$-norm of an $n$-dimensional vector $\overrightarrow{u}$ is given by, $||u||_p = \left( \sum_{i = 1}^{n} |u_i|^p\right)^{1/p}$.  Input `p` should be of the type `int`.  The output norm should be of the type `float`.
 # 2. Add a method `rank()` to your `Matrix` class so that if `A` is a `Matrix` object, then `A.rank()` returns the rank of `A`.
