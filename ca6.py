@@ -28,7 +28,311 @@
 # #### Problem 1
 # 
 # Copy-paste your implemented `Matrix` and `Vec` classes to the next cell.  Then, complete the following tasks:
-# 
+import math
+
+class Matrix:
+    
+    def __init__(self, matrix = []):  #FIXME: Add necessary parameters and default values
+        self.colsp = []
+        self.rowsp = []
+
+        for i, row in enumerate(matrix):
+            self.rowsp.append(row)
+
+        for i in range(len(matrix[0])):
+            temp = []
+            for j in range(len(matrix)):
+                temp.append(matrix[j][i])
+            self.colsp.append(temp)
+
+
+        
+    def set_col(self, j, u):
+        j = j - 1
+        if len(u) != len(self.colsp[j]):
+            print("Incompatible column length")
+            raise ValueError
+        
+        self.colsp[j] = u
+
+        for i, row in enumerate(self.rowsp):
+            row[j] = u[i]
+    
+    def set_row(self, i, v):
+        i = i - 1
+        if len(v) != len(self.rowsp[i]):
+            print("Incompatible column length")
+            raise ValueError
+        
+        self.rowsp[i] = v
+
+        for j, col in enumerate(self.colsp):
+            col[i] = v[j]
+    
+    def set_entry(self, i, j, x):
+        i = i - 1
+        j = j - 1
+        
+        self.rowsp[i][j] = x
+        self.colsp[j][i] = x
+
+    def get_col(self, j):
+        j = j - 1
+        return self.colsp[j]
+    
+    def get_row(self, i):
+        i = i - 1
+        return self.rowsp[i]
+
+    def get_entry(self, i, j):
+        i = i - 1
+        j = j - 1
+        return self.rowsp[i][j]
+
+    def col_space(self):
+        return self.colsp
+    
+    def row_space(self):
+        return self.rowsp
+    
+    def get_diag(self, k):
+        ans = []
+        row_counter = 0
+        if k < 0:
+            row_counter = abs(k)
+
+        col_counter = 0
+        
+        for i in range(k, len(self.rowsp)):
+
+            if k < 0:
+                ans.append(self.get_entry(row_counter + 1, col_counter + 1))
+
+                row_counter = row_counter + 1
+                col_counter = col_counter + 1
+                if row_counter == len(self.rowsp):
+                    break
+
+            elif k == 0:
+                ans.append(self.get_entry(i + 1, i + 1))
+            elif k > 0:
+                ans.append(self.get_entry(row_counter + 1, i + 1))
+                row_counter = row_counter + 1
+        
+        return ans
+    
+    def __add__(self, other):
+        if len(other.row_space()) != len(self.rowsp) or len(other.col_space()) != len(self.colsp):
+            print("Incompatible column length")
+            raise ValueError
+        
+        ans = []
+        for i in range(0, len(self.rowsp)):
+            temp = []
+            for j in range(0, len(self.rowsp[i])):
+                temp.append(self.rowsp[i][j] + other.row_space()[i][j])
+
+            ans.append(temp)
+
+
+        return Matrix(ans)
+
+    
+    def __sub__(self, other):
+        if len(other.row_space()) != len(self.rowsp) or len(other.col_space()) != len(self.colsp):
+            print("Incompatible column length")
+            raise ValueError
+        
+        ans = []
+        for i in range(0, len(self.rowsp)):
+            temp = []
+            for j in range(0, len(self.rowsp[i])):
+                temp.append(self.rowsp[i][j] - other.row_space()[i][j])
+
+            ans.append(temp)
+
+
+        return Matrix(ans)
+        
+    def __mul__(self, other):  
+        ans = []
+
+        # A: 3x2 , B: 2x2
+
+        print(self.rowsp)
+
+        if isinstance(other, float) or isinstance(other, int):
+            for i in range(0, len(self.rowsp)):
+                temp = []
+                for j in range(0, len(self.rowsp[i])):
+                    temp.append(self.rowsp[i][j] * other)
+                print(temp)
+                ans.append(temp)
+
+        elif isinstance(other, Matrix):
+
+            
+            if len(other.row_space()) != len(self.colsp):
+                print("Incompatible length")
+                raise ValueError
+            
+            print(other.colsp)
+            ans = []
+            for i in range(0, len(self.rowsp)):
+                temp = []
+                for j in range(0, len(other.colsp)):
+                    sum = 0
+                    for k in range(0, len(other.rowsp)):
+                        sum = sum + (self.rowsp[i][k] * other.rowsp[k][j])
+                    temp.append(sum)
+
+                ans.append(temp)
+
+
+
+        elif isinstance(other, Vec):
+            ans = []
+            for i in range(0, len(self.rowsp)):
+                sum = 0
+                for j in range(0, len(self.rowsp[i])):
+                    sum = sum + (self.rowsp[i][j] * other.elements[j])
+                ans.append(sum)
+            return Vec(ans)
+             
+        else:
+            print("ERROR: Unsupported Type.")
+            raise ValueError
+            
+        return Matrix(ans)
+    
+    def __rmul__(self, other):  
+        ans = []
+        if isinstance(other, float) or isinstance(other, int):
+
+            for i in range(0, len(self.rowsp)):
+                temp = []
+                for j in range(0, len(self.rowsp[i])):
+                    temp.append(self.rowsp[i][j] * other)
+                print(temp)
+                ans.append(temp)
+        else:
+            print("ERROR: Unsupported Type.")
+            raise ValueError
+            
+        return Matrix(ans)
+    
+    def __str__(self):
+        """prints the rows and columns in matrix form """
+        ans = ''
+        for row in self.rowsp:
+            ans += str(row) + "\n"
+        return ans
+        
+    def __eq__(self, other):
+        """overloads the == operator to return True if 
+        two Matrix objects have the same row space and column space"""
+        this_rows = self.row_space()
+        other_rows = other.row_space()
+        this_cols = self.col_space()
+        other_cols = other.col_space()
+        return this_rows == other_rows and this_cols == other_cols
+
+    def __req__(self, other):
+        """overloads the == operator to return True if 
+        two Matrix objects have the same row space and column space"""
+        this_rows = self.row_space()
+        other_rows = other.row_space()
+        this_cols = self.col_space()
+        other_cols = other.col_space()
+        return this_rows == other_rows and this_cols == other_cols
+
+
+# From Assignment 4
+class Vec:
+    def __init__(self, contents = []):
+        """
+        Constructor defaults to empty vector
+        INPUT: list of elements to initialize a vector object, defaults to empty list
+        """
+        self.elements = contents
+        return
+    
+    def __abs__(self):
+        """
+        Overloads the built-in function abs(v)
+        returns the Euclidean norm of vector v
+        """
+        ans = math.sqrt(sum([pow(i,2) for i in self.elements]))
+        return ans
+        
+    def __add__(self, other):
+        """Overloads the + operator to support Vec + Vec
+         raises ValueError if vectors are not same length
+        """
+        if len(self.elements) != len(other.elements):
+            raise ValueError
+        i = 0
+        ans = []
+        while i < len(self.elements):
+            ans.append(self.elements[i] + other.elements[i])
+            i = i + 1
+
+        return Vec(ans)
+            
+    
+    def __sub__(self, other):
+        """
+        Overloads the - operator to support Vec - Vec
+        Raises a ValueError if the lengths of both Vec objects are not the same
+        """
+        if len(self.elements) != len(other.elements):
+            raise ValueError
+        i = 0
+        ans = []
+        while i < len(self.elements):
+            ans.append(self.elements[i] - other.elements[i])
+            i = i + 1
+
+        return Vec(ans)
+    
+    
+    
+    def __mul__(self, other):
+        """Overloads the * operator to support 
+            - Vec * Vec (dot product) raises ValueError if vectors are not same length in the case of dot product
+            - Vec * float (component-wise product)
+            - Vec * int (component-wise product)
+            
+        """
+        if isinstance(other) == Vec: #define dot product
+            if len(self.elements) != len(other.elements):
+                raise ValueError
+            i = 0
+            ans = 0
+            while i < len(self.elements):
+                ans = ans + (self.elements[i] * other.elements[i])
+                i = i + 1
+
+            return ans
+            
+        elif isinstance(other) == float or isinstance(other) == int: #scalar-vector multiplication
+            return Vec([num * other for num in self.elements])
+            
+    
+    def __rmul__(self, other):
+        """Overloads the * operation to support 
+            - float * Vec
+            - int * Vec
+        """
+        return Vec([num * other for num in self.elements])
+    
+
+    
+    def __str__(self):
+        """returns string representation of this Vec object"""
+        return str(self.elements) # does NOT need further implementation
+
+
 # 1. Add a method `norm(p)` to your `Vec` class so that if `u` is a `Vec` object, then `u.norm(p)` returns the $L_p$-norm of vector `u`.  Recall that the $L_p$-norm of an $n$-dimensional vector $\overrightarrow{u}$ is given by, $||u||_p = \left( \sum_{i = 1}^{n} |u_i|^p\right)^{1/p}$.  Input `p` should be of the type `int`.  The output norm should be of the type `float`.
 # 2. Add a method `rank()` to your `Matrix` class so that if `A` is a `Matrix` object, then `A.rank()` returns the rank of `A`.
 
