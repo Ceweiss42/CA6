@@ -380,7 +380,7 @@ def _rref(A, b):
     # Doing gaussian elimination
     pivot = aug_matrix[0][0]
     pivot_index = 0
-    for i, row in enumerate(aug_matrix[:-1]):
+    for i, row in enumerate(aug_matrix):
         if i != 0:
             alpha = row[0]/pivot
             for j, col in enumerate(row[pivot_index:], i):
