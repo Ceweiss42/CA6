@@ -427,6 +427,32 @@ def _rref(A, b):
         aug_matrix.append(temp)
 
 
+    # Sort row
+    row_order_table = {}
+    for i, row in enumerate(aug_matrix):
+        for j, col in enumerate(row): 
+            if col == 0:
+                row_order_table[i] = j
+                break
+    
+    sorted_row_order = []
+    for i, row in enumerate(row_order_table.keys()):
+        if i == 0:
+            sorted_row_order.append(row)
+        else:
+            for r in sorted_row_order:
+                if row_order_table[row] < row_order_table[r]:
+                    sorted_row_order.insert(i, r)
+
+    sorted_row_order = reversed(sorted_row_order)
+
+    # Sorting the augmented_matrix
+    sorted_aug_matrix = [[] for i in range(len(aug_matrix))]
+    for i, row in enumerate(sorted_aug_matrix):
+        row =  aug_matrix[sorted_row_order[i]]
+    
+    aug_matrix = sorted_aug_matrix
+
     # Doing gaussian elimination
     pivot = aug_matrix[0][0]
     pivot_index = 0
