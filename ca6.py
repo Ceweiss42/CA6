@@ -251,6 +251,15 @@ class Matrix:
         other_cols = other.col_space()
         return this_rows == other_rows and this_cols == other_cols
 
+    
+    def rank(self):
+        rank = 0
+        zero_vector = [0 for i in range(len(self.rowsp[0]))]
+        for row in self:
+            if row != zero_vector:
+                rank += 1
+        return rank
+
 
 # From Assignment 4
 class Vec:
@@ -341,7 +350,13 @@ class Vec:
         #p = int
         #out = float
         #norm = 
-        pass
+        sum = 0.0
+        if isinstance(p) == Vec:
+            for element in p:
+                sum += pow(element, 2)
+            return math.sqrt(sum)
+
+        
 
 # %% [markdown]
 # #### Problem 2
