@@ -512,6 +512,13 @@ def _rref_pp(A, b):
         for row in aug_matrix:
             if row[0] > maxRow[0]:
                 maxRow = row
+            elif row[0] == maxRow[0]:
+                for i in range(len(row)):
+                    if row[i] > maxRow[i]:
+                        maxRow = row
+                        break
+                    elif row[i] < maxRow[i]:
+                        break
         maxedAug.append(maxRow)
         aug_matrix.remove(maxRow)
 
