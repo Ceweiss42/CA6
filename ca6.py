@@ -369,8 +369,28 @@ class Vec:
 
 # %%
 def _rref(A, b):
-    # todo
-    pass
+    aug_matrix = []
+    # Forming the augmented matrix
+    for i, row in enumerate(A):
+        temp = row
+        temp = temp.append([b[i]])
+        aug_matrix.append(temp)
+
+
+    # Doing gaussian elimination
+    pivot = aug_matrix[0][0]
+    pivot_index = 0
+    for i, row in enumerate(aug_matrix[:-1]):
+        if i != 0:
+            alpha = row[0]/pivot
+            for j, col in enumerate(row[pivot_index:], i):
+                col = col - (alpha/pivot) * (aug_matrix[pivot_index][j])
+            pivot = aug_matrix[i][i]
+            pivot_index = i
+    
+    return aug_matrix
+                
+
 
 def solve_np(A, b):
     #todo
