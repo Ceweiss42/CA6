@@ -448,30 +448,45 @@ def _rref(A, b):
         aug_matrix.remove(maxRow)
 
     aug_matrix = maxedAug
-    # print(aug_matrix)
+    print(aug_matrix)
 
     # Doing gaussian elimination
     pivot = aug_matrix[0][0]
     pivot_index = 0
     for i, row in enumerate(aug_matrix):
         if i != 0:
-            alpha = row[0]/pivot
-            for j, col in enumerate(row[pivot_index + 1:], i):
-                col = col - (alpha/pivot) * (aug_matrix[pivot_index][j])
+            # Need to add another loop here
+            for j, row_not_pivot in enumerate(aug_matrix[i:]):
+                
+                alpha = row_not_pivot[pivot_index]
+                # print(alpha)
+                # print(row[pivot_index:])
+                for k, col in enumerate(row_not_pivot[pivot_index:], pivot_index):
+                    # print(k)
+                    # print((alpha/pivot) * (aug_matrix[pivot_index][j]))
+                    row_not_pivot[k] = col - (alpha/pivot) * (aug_matrix[pivot_index][k])
+                    # print(col)
             pivot = aug_matrix[i][i]
             pivot_index = i
-    
-    print(aug_matrix)
+        
+    # print(aug_matrix)
     return Matrix(aug_matrix)
 
-m = Matrix([[0, 0, 2],
-           [0, 3, 1],
-           [3, 4, 1]])
+# m = Matrix([[0, 0, 2],
+#            [0, 3, 1],
+#            [3, 4, 1]])
            
+# vec = Vec([1, 1, 1])
+
+# print(_rref(m, vec))
+
+m = Matrix([[1, 2, 2],
+           [3, 3, 1],
+           [3, 4, 1]])
+
 vec = Vec([1, 1, 1])
 
 print(_rref(m, vec))
-
 
 def solve_np(A, b):
     aug_matrix = []
@@ -517,13 +532,6 @@ def _rref_pp(A, b):
         for row in aug_matrix:
             if row[0] > maxRow[0]:
                 maxRow = row
-            elif row[0] == maxRow[0]:
-                for i in range(len(row)):
-                    if row[i] > maxRow[i]:
-                        maxRow = row
-                        break
-                    elif row[i] < maxRow[i]:
-                        break
         maxedAug.append(maxRow)
         aug_matrix.remove(maxRow)
 
