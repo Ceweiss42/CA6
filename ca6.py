@@ -496,8 +496,38 @@ def solve_np(A, b):
 
 # %%
 def _rref_pp(A, b):
-    # todo
-    pass
+    aug_matrix = []
+    # Forming the augmented matrix
+    for i, row in enumerate(A):
+        temp = row
+        temp.append([b[i]])
+        aug_matrix.append(temp)
+
+    #switch rows into nice order
+    maxRow = aug_matrix[0]
+    for row in aug_matrix:
+        if row[0] > maxRow[0]:
+            maxRow,row = row,maxRow
+
+    pivot = aug_matrix[0][0]
+    pivot_index = 0
+    row_index = 0
+    for i, row in enumerate(aug_matrix):
+        if i != 0:
+            alpha = row[0]/pivot
+            for j, col in enumerate(row[pivot_index:], i):
+                col = col - (alpha/pivot) * (aug_matrix[pivot_index][j])
+            pivot = aug_matrix[i][i]
+            pivot_index = i
+        
+        row_index += 1
+        maxRow = aug_matrix[row_index]
+        for row in aug_matrix:
+            if row[row_index] > maxRow[row_index]:
+                maxRow,row = row,maxRow
+
+    
+    return Matrix(aug_matrix)
 
 def solve_pp(A, b):
     #todo
