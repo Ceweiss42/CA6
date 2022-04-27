@@ -418,7 +418,13 @@ class Vec:
 #     - If the system has infinitely many solutions, it returns the number of free variables (`int`) in the solution.
 
 # %%
-
+def find_num_of_leading_zero(row):
+        ans = 0
+        for num in row:
+            if num != 0:
+                break
+            ans += 1
+        return ans
 
 def _rref(A, b):
     aug_matrix = []
@@ -435,15 +441,15 @@ def _rref(A, b):
     while(len(aug_matrix) > 0):
         maxRow = aug_matrix[0]
         for row in aug_matrix:
-            if row[0] > maxRow[0]:
+            if find_num_of_leading_zero(row) < find_num_of_leading_zero(maxRow):
                 maxRow = row
-            elif row[0] == maxRow[0]:
-                for i in range(len(row)):
-                    if row[i] > maxRow[i]:
-                        maxRow = row
-                        break
-                    elif row[i] < maxRow[i]:
-                        break
+            # elif find_num_of_leading_zero(row) == find_num_of_leading_zero(maxRow)]:
+            #     for i in range(len(row)):
+            #         if row[i] > maxRow[i]:
+            #             maxRow = row
+            #             break
+            #         elif row[i] < maxRow[i]:
+            #             break
         maxedAug.append(maxRow)
         aug_matrix.remove(maxRow)
 
@@ -472,13 +478,16 @@ def _rref(A, b):
     # print(aug_matrix)
     return Matrix(aug_matrix)
 
-# m = Matrix([[0, 0, 2],
-#            [0, 3, 1],
-#            [3, 4, 1]])
-           
-# vec = Vec([1, 1, 1])
+    
 
-# print(_rref(m, vec))
+
+m = Matrix([[0, 0, 2],
+           [0, 3, 1],
+           [3, 4, 1]])
+           
+vec = Vec([1, 1, 1])
+
+print(_rref(m, vec))
 
 m = Matrix([[1, 2, 2],
            [3, 3, 1],
