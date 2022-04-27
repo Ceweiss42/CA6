@@ -418,40 +418,31 @@ class Vec:
 #     - If the system has infinitely many solutions, it returns the number of free variables (`int`) in the solution.
 
 # %%
+
+
 def _rref(A, b):
     aug_matrix = []
     # Forming the augmented matrix
-    for i, row in enumerate(A):
+    for i, row in enumerate(A.rowsp):
         temp = row
-        temp = temp.append([b[i]])
+        temp.append(b.elements[i])
         aug_matrix.append(temp)
 
-
+    print(aug_matrix)
     # Sort row
-    row_order_table = {}
-    for i, row in enumerate(aug_matrix):
-        for j, col in enumerate(row): 
-            if col == 0:
-                row_order_table[i] = j
-                break
-    
-    sorted_row_order = []
-    for i, row in enumerate(row_order_table.keys()):
-        if i == 0:
-            sorted_row_order.append(row)
-        else:
-            for r in sorted_row_order:
-                if row_order_table[row] < row_order_table[r]:
-                    sorted_row_order.insert(i, r)
+    maxedAug = []
 
-    sorted_row_order = reversed(sorted_row_order)
+    while(len(aug_matrix) > 0):
+        maxRow = aug_matrix[0]
+        for row in aug_matrix:
+            if row[0] > maxRow[0]:
+                maxRow = row
+        maxedAug.append(maxRow)
+        aug_matrix.remove(maxRow)
 
-    # Sorting the augmented_matrix
-    sorted_aug_matrix = [[] for i in range(len(aug_matrix))]
-    for i, row in enumerate(sorted_aug_matrix):
-        row =  aug_matrix[sorted_row_order[i]]
-    
-    aug_matrix = sorted_aug_matrix
+    aug_matrix = maxedAug
+
+    print(aug_matrix)
 
     # Doing gaussian elimination
     pivot = aug_matrix[0][0]
@@ -465,7 +456,14 @@ def _rref(A, b):
             pivot_index = i
     
     return Matrix(aug_matrix)
-                
+
+m = Matrix([[0, 0, 2],
+           [0, 3, 1],
+           [3, 4, 1]])
+           
+vec = Vec([1, 1, 1])
+
+print(_rref(m, vec))
 
 
 def solve_np(A, b):
@@ -527,127 +525,127 @@ def solve_tp(A, b):
 # The following function is the master function that will be called by the CodePost tester.  It will be fully functional once you have completed Problems 1 - 4.  No edits are necessary.
 
 # %%
-import enum
+# import enum
 
-class GaussSolvers(enum.Enum):
-    np = 0
-    pp = 1
-    tp = 2
+# class GaussSolvers(enum.Enum):
+#     np = 0
+#     pp = 1
+#     tp = 2
     
     
-def solve(A, b, solver = GaussSolvers.np):
-    if solver == GaussSolvers.np:
-        return solve_np(A, b)
-    elif solver == GaussSolvers.pp:
-        return solve_pp(A, b)
-    elif solver == GaussSolvers.tp:
-        return solve_tp(A, b)
+# def solve(A, b, solver = GaussSolvers.np):
+#     if solver == GaussSolvers.np:
+#         return solve_np(A, b)
+#     elif solver == GaussSolvers.pp:
+#         return solve_pp(A, b)
+#     elif solver == GaussSolvers.tp:
+#         return solve_tp(A, b)
 
-# %%
-"""TESTER CELL #1"""
-A = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+# # %%
+# """TESTER CELL #1"""
+# A = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 
-x = Vec([2.3, -4.1, 5.7]) # this is the true solution
+# x = Vec([2.3, -4.1, 5.7]) # this is the true solution
 
-b = A * x
+# b = A * x
 
-x_np = solve(A, b)
-x_pp = solve(A, b, GaussSolvers.pp)
-x_tp = solve(A, b, GaussSolvers.tp)
+# x_np = solve(A, b)
+# x_pp = solve(A, b, GaussSolvers.pp)
+# x_tp = solve(A, b, GaussSolvers.tp)
 
-epsilon_np = x_np - x
-epsilon_pp = x_pp - x
-epsilon_tp = x_tp - x
+# epsilon_np = x_np - x
+# epsilon_pp = x_pp - x
+# epsilon_tp = x_tp - x
 
-error1_np = epsilon_np.norm(1)
-error2_np = epsilon_np.norm(2)
+# error1_np = epsilon_np.norm(1)
+# error2_np = epsilon_np.norm(2)
 
-print("-"*20)
-print("No Pivoting Solution:", x_np)
-print("True solution:", x)
+# print("-"*20)
+# print("No Pivoting Solution:", x_np)
+# print("True solution:", x)
 
-print("Errors in Gaussian Elimination Without Pivoting")
-print("L1-norm error:", error1_np)
-print("L2-norm error:", error1_np)
-print()
+# print("Errors in Gaussian Elimination Without Pivoting")
+# print("L1-norm error:", error1_np)
+# print("L2-norm error:", error1_np)
+# print()
 
-print("-"*20)
-print("Partial Pivoting Solution:", x_pp)
-print("True solution:", x)
+# print("-"*20)
+# print("Partial Pivoting Solution:", x_pp)
+# print("True solution:", x)
 
-error1_pp = epsilon_pp.norm(1)
-error2_pp = epsilon_pp.norm(2)
+# error1_pp = epsilon_pp.norm(1)
+# error2_pp = epsilon_pp.norm(2)
 
-print("Errors in Gaussian Elimination With Partial Pivoting")
-print("L1-norm error:", error1_pp)
-print("L2-norm error:", error1_pp)
-print()
+# print("Errors in Gaussian Elimination With Partial Pivoting")
+# print("L1-norm error:", error1_pp)
+# print("L2-norm error:", error1_pp)
+# print()
 
-print("-"*20)
-print("Total Pivoting Solution:", x_tp)
-print("True solution:", x)
+# print("-"*20)
+# print("Total Pivoting Solution:", x_tp)
+# print("True solution:", x)
 
-error1_tp = epsilon_tp.norm(1)
-error2_tp = epsilon_tp.norm(2)
+# error1_tp = epsilon_tp.norm(1)
+# error2_tp = epsilon_tp.norm(2)
 
-print("Errors in Gaussian Elimination With Total Pivoting")
-print("L1-norm error:", error1_tp)
-print("L2-norm error:", error1_tp)
+# print("Errors in Gaussian Elimination With Total Pivoting")
+# print("L1-norm error:", error1_tp)
+# print("L2-norm error:", error1_tp)
 
 
-# %%
-"""TESTER CELL #2"""
+# # %%
+# """TESTER CELL #2"""
 
-A = Matrix([[1, 2, 3], [2, 4, 6]])
+# A = Matrix([[1, 2, 3], [2, 4, 6]])
 
-b = Vec([6, -12]) 
+# b = Vec([6, -12]) 
 
-x_np = solve(A, b)
-x_pp = solve(A, b, GaussSolvers.pp)
-x_tp = solve(A, b, GaussSolvers.tp)
+# x_np = solve(A, b)
+# x_pp = solve(A, b, GaussSolvers.pp)
+# x_tp = solve(A, b, GaussSolvers.tp)
 
-print("-"*20)
-print("No Pivoting Solution:", x_np)
-print("Expected: None")
+# print("-"*20)
+# print("No Pivoting Solution:", x_np)
+# print("Expected: None")
 
-print("-"*20)
-print("Partial Pivoting Solution:", x_pp)
-print("Expected: None")
+# print("-"*20)
+# print("Partial Pivoting Solution:", x_pp)
+# print("Expected: None")
 
-print("-"*20)
-print("Total Pivoting Solution:", x_tp)
-print("Expected: None")
+# print("-"*20)
+# print("Total Pivoting Solution:", x_tp)
+# print("Expected: None")
 
-# %%
-"""TESTER CELL #3"""
+# # %%
+# """TESTER CELL #3"""
 
-# Test one of the examples from lecture that had infinitely-many solutions
+# # Test one of the examples from lecture that had infinitely-many solutions
 
-# %% [markdown]
-# 
-# ------------------------------------------------
-# 
-# #### Problem 5
-# 
-# Implement the method `is_independent(S)` that returns `True` if the set `S` of `Vec` objects is linearly **independent**, otherwise returns `False`.
+# # %% [markdown]
+# # 
+# # ------------------------------------------------
+# # 
+# # #### Problem 5
+# # 
+# # Implement the method `is_independent(S)` that returns `True` if the set `S` of `Vec` objects is linearly **independent**, otherwise returns `False`.
 
-# %%
-def is_independent(S):
-    #todo
-    pass
+# # %%
+# def is_independent(S):
+#     #todo
+#     pass
 
-# %%
-"""TESTER CELL"""
+# # %%
+# """TESTER CELL"""
 
-S1 = {Vec([1, 2]), Vec([2, 3]), Vec([3, 4])}
+# S1 = {Vec([1, 2]), Vec([2, 3]), Vec([3, 4])}
 
-print("S1 is Independent:", is_independent(S1))
-print("Expected: False")
+# print("S1 is Independent:", is_independent(S1))
+# print("Expected: False")
 
-S2 = {Vec([1, 1, 1]), Vec([1, 2, 3]), Vec([1, 3, 6])}
+# S2 = {Vec([1, 1, 1]), Vec([1, 2, 3]), Vec([1, 3, 6])}
 
-print("S2 is Independent:", is_independent(S2))
-print("Expected: True")
+# print("S2 is Independent:", is_independent(S2))
+# print("Expected: True")
 
 
 
