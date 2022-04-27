@@ -504,10 +504,18 @@ def _rref_pp(A, b):
         aug_matrix.append(temp)
 
     #switch rows into nice order
-    maxRow = aug_matrix[0]
-    for row in aug_matrix:
-        if row[0] > maxRow[0]:
-            maxRow,row = row,maxRow
+    
+    maxedAug = []
+
+    while(len(aug_matrix) > 0):
+        maxRow = aug_matrix[0]
+        for row in aug_matrix:
+            if row[0] > maxRow[0]:
+                maxRow = row
+        maxedAug.append(maxRow)
+        aug_matrix.remove(maxRow)
+
+    aug_matrix = maxedAug
 
     pivot = aug_matrix[0][0]
     pivot_index = 0
