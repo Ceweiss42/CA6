@@ -255,10 +255,12 @@ class Matrix:
     def rank(self):
         rank = 0
         zero_vector = [0 for i in range(len(self.rowsp[0]))]
-        for row in self:
+        for row in self.rowsp:
             if row != zero_vector:
                 rank += 1
         return rank
+    
+
 
 
 # From Assignment 4
@@ -388,13 +390,26 @@ def _rref(A, b):
             pivot = aug_matrix[i][i]
             pivot_index = i
     
-    return aug_matrix
+    return Matrix(aug_matrix)
                 
 
 
 def solve_np(A, b):
-    #todo
-    pass
+    aug_matrix = []
+    # Forming the augmented matrix
+    for i, row in enumerate(A):
+        temp = row
+        temp = temp.append([b[i]])
+        aug_matrix.append(temp)
+
+        aug_matrix = Matrix(aug_matrix)
+    
+    if A.rank() < aug_matrix.rank():
+        return None
+    elif A.rank() == aug_matrix.rank():
+        pass
+    else:
+        pass
 
 # %% [markdown]
 # #### Problem 3
