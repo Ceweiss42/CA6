@@ -271,9 +271,10 @@ class Matrix:
         for i, row_curr in enumerate(self.rowsp):
             for j, row_not_curr in enumerate(self.rowsp[i:], i):
                 if row_not_curr[0] % row_curr[0] == 0:
+                    mult = row_not_curr[0] / row_curr[0]
                     num_of_scalar_mult = 0
                     for j, col in enumerate(row_curr):
-                        if row_not_curr[j] % row_curr[j] != 0:
+                        if row_not_curr[j] % row_curr[j] != mult:
                             break
                         else:
                             num_of_scalar_mult += 1
@@ -281,9 +282,10 @@ class Matrix:
                         scalar_mult_row_table[j] = i
                         
                 elif row_curr[0] % row_not_curr[0]:
+                    mult = row_curr[0] / row_not_curr[0]
                     num_of_scalar_mult = 0
                     for j, col in enumerate(row_curr):
-                        if row_curr[j] % row_not_curr[j] != 0:
+                        if row_curr[j] % row_not_curr[j] != mult:
                             break
                         else:
                             num_of_scalar_mult += 1
@@ -300,7 +302,7 @@ class Matrix:
                 num_of_removed_items += 1
                 removed_items.append(pair[0])
         
-        self = Matrix(ans)
+        return Matrix(ans)
 
 
 
