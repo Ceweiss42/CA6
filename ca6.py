@@ -428,7 +428,7 @@ def _rref(A, b):
         temp.append(b.elements[i])
         aug_matrix.append(temp)
 
-    print(aug_matrix)
+    # print(aug_matrix)
     # Sort row
     maxedAug = []
 
@@ -437,12 +437,18 @@ def _rref(A, b):
         for row in aug_matrix:
             if row[0] > maxRow[0]:
                 maxRow = row
+            elif row[0] == maxRow[0]:
+                for i in range(len(row)):
+                    if row[i] > maxRow[i]:
+                        maxRow = row
+                        break
+                    elif row[i] < maxRow[i]:
+                        break
         maxedAug.append(maxRow)
         aug_matrix.remove(maxRow)
 
     aug_matrix = maxedAug
-
-    print(aug_matrix)
+    # print(aug_matrix)
 
     # Doing gaussian elimination
     pivot = aug_matrix[0][0]
@@ -450,11 +456,12 @@ def _rref(A, b):
     for i, row in enumerate(aug_matrix):
         if i != 0:
             alpha = row[0]/pivot
-            for j, col in enumerate(row[pivot_index:], i):
+            for j, col in enumerate(row[pivot_index + 1:], i):
                 col = col - (alpha/pivot) * (aug_matrix[pivot_index][j])
             pivot = aug_matrix[i][i]
             pivot_index = i
     
+    print(aug_matrix)
     return Matrix(aug_matrix)
 
 m = Matrix([[0, 0, 2],
@@ -494,8 +501,46 @@ def solve_np(A, b):
 
 # %%
 def _rref_pp(A, b):
-    # todo
-    pass
+    aug_matrix = []
+    # Forming the augmented matrix
+    for i, row in enumerate(A):
+        temp = row
+        temp.append([b[i]])
+        aug_matrix.append(temp)
+
+    #switch rows into nice order
+    
+    maxedAug = []
+
+    while(len(aug_matrix) > 0):
+        maxRow = aug_matrix[0]
+        for row in aug_matrix:
+            if row[0] > maxRow[0]:
+                maxRow = row
+        maxedAug.append(maxRow)
+        aug_matrix.remove(maxRow)
+
+    aug_matrix = maxedAug
+
+    pivot = aug_matrix[0][0]
+    pivot_index = 0
+    row_index = 0
+    for i, row in enumerate(aug_matrix):
+        if i != 0:
+            alpha = row[0]/pivot
+            for j, col in enumerate(row[pivot_index:], i):
+                col = col - (alpha/pivot) * (aug_matrix[pivot_index][j])
+            pivot = aug_matrix[i][i]
+            pivot_index = i
+        
+        row_index += 1
+        maxRow = aug_matrix[row_index]
+        for row in aug_matrix:
+            if row[row_index] > maxRow[row_index]:
+                maxRow,row = row,maxRow
+
+    
+    return Matrix(aug_matrix)
 
 def solve_pp(A, b):
     #todo
