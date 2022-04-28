@@ -478,16 +478,65 @@ def _rref(A, b):
     # print(aug_matrix)
     return Matrix(aug_matrix)
 
+
+# m = Matrix([[0, 0, 2],
+#            [0, 3, 1],
+#            [3, 4, 1]])
+           
+# vec = Vec([1, 1, 1])
+
+# print(_rref(m, vec))
+
+# m = Matrix([[1, 2, 2],
+#            [3, 3, 1],
+#            [3, 4, 1]])
+
+# vec = Vec([1, 1, 1])
+
+# print(_rref(m, vec))
+
+def solve_np(A, b):
+    aug_matrix = _rref(A, b)
+    
     
 
+    if A.rank() < aug_matrix.rank():
+        return None
 
-m = Matrix([[0, 0, 2],
-           [0, 3, 1],
-           [3, 4, 1]])
-           
-vec = Vec([1, 1, 1])
+    elif A.rank() == aug_matrix.rank():
+        variable_table = {}
+        solutions = []
+        for i, row in enumerate(reversed(aug_matrix.rowsp)):
+            variables = []
+            constant = 0
+            for j, col in reversed(list(enumerate(row))):
+                if j == len(row) - 1:
+                    constant = col
+                elif col == 0:
+                    break
+                else:
+                    variables.insert(0, j)
+            if len(variables) == 1:
+                solutions.insert(0,constant/row[variables[0]])
+                variable_table[variables[0]] = constant/row[variables[0]]
+            else:
+                sum_of_known_variables = 0
+                unknown_variables = 0
+                for k, col in reversed(list(enumerate(row[:-1]))):
+                    if k in variable_table:
+                        sum_of_known_variables += variable_table[k] * col
+                    elif col != 0:
+                        unknown_variables = k
+                
+                print(sum_of_known_variables)
+                solutions.insert(0,(constant-sum_of_known_variables)/row[variables[unknown_variables]])
+                variable_table[unknown_variables] = (constant-sum_of_known_variables)/row[variables[unknown_variables]]
+        
+        return Vec(solutions)
 
-print(_rref(m, vec))
+    else:
+        return len(A) - Matrix(A).rank() 
+    
 
 m = Matrix([[1, 2, 2],
            [3, 3, 1],
@@ -495,24 +544,7 @@ m = Matrix([[1, 2, 2],
 
 vec = Vec([1, 1, 1])
 
-print(_rref(m, vec))
-
-def solve_np(A, b):
-    aug_matrix = []
-    # Forming the augmented matrix
-    for i, row in enumerate(A):
-        temp = row
-        temp = temp.append([b[i]])
-        aug_matrix.append(temp)
-
-        aug_matrix = Matrix(aug_matrix)
-    
-    if A.rank() < aug_matrix.rank():
-        return None
-    elif A.rank() == aug_matrix.rank():
-        pass
-    else:
-        pass
+print(solve_np(m, vec))
 
 # %% [markdown]
 # #### Problem 3
