@@ -600,7 +600,7 @@ def _rref_pp(A, b):
 
 def solve_pp(A, b):
     #todo
-    aug_matrix = _rref(A, b)
+    aug_matrix = _rref_pp(A, b)
     
     
 
@@ -656,7 +656,7 @@ def _rref_tp(A):
     pass
 
 def solve_tp(A, b):
-    aug_matrix = _rref(A, b)
+    aug_matrix = _rref_tp(A, b)
     
     
 
