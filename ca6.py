@@ -254,6 +254,7 @@ class Matrix:
     
     def rank(self):
         rank = 0
+        self.reduce_scalar_mult()
         zero_vector = [0 for i in range(len(self.rowsp[0]))]
         for row in self.rowsp:
             if row != zero_vector:
@@ -269,44 +270,52 @@ class Matrix:
 
         # Check for rows that are scalar multiples
         for i, row_curr in enumerate(self.rowsp):
-            for j, row_not_curr in enumerate(self.rowsp[i:], i):
+            for j, row_not_curr in enumerate(self.rowsp[i+1:], i+1):
+
                 if row_not_curr[0] % row_curr[0] == 0:
                     mult = row_not_curr[0] / row_curr[0]
                     num_of_scalar_mult = 0
-                    for j, col in enumerate(row_curr):
-                        if row_not_curr[j] % row_curr[j] != mult:
+                    for k, col in enumerate(row_curr):
+                        if row_not_curr[k] / row_curr[k] != mult:
                             break
                         else:
                             num_of_scalar_mult += 1
                     if num_of_scalar_mult == len(row_curr):
                         scalar_mult_row_table[j] = i
                         
-                elif row_curr[0] % row_not_curr[0]:
+                elif row_curr[0] % row_not_curr[0] == 0:
                     mult = row_curr[0] / row_not_curr[0]
                     num_of_scalar_mult = 0
-                    for j, col in enumerate(row_curr):
-                        if row_curr[j] % row_not_curr[j] != mult:
+            
+                    for k, col in enumerate(row_curr):
+                        if row_curr[k] / row_not_curr[k] != mult:
                             break
                         else:
                             num_of_scalar_mult += 1
+                    # print(num_of_scalar_mult)
                     if num_of_scalar_mult == len(row_curr):
                         scalar_mult_row_table[i] = j
 
         # Constructing reduce matrix
         ans = self.rowsp
         num_of_removed_items = 0
-        removed_items = []
-        for pair in scalar_mult_row_table.items():
-            if pair[0] not in removed_items:
-                ans.pop(pair[0] - num_of_removed_items)
-                num_of_removed_items += 1
-                removed_items.append(pair[0])
+        removed_items = scalar_mult_row_table.keys()
+        for item in sorted(removed_items, reverse=True):
+            del ans[item]
+
+        # for pair in scalar_mult_row_table.items():
+        #     if pair[0] not in removed_items:
+        #         ans.pop(pair[0] - num_of_removed_items)
+        #         num_of_removed_items += 1
+        #         removed_items.append(pair[0])
         
-        return Matrix(ans)
+        self = Matrix(ans)
 
 
-
-
+m = Matrix([[4, 2, 2],
+           [2, 1, 1],
+           [8, 4, 4]])
+print(m.rank())
 
                     
 
@@ -402,8 +411,8 @@ class Vec:
             sum += pow(element, p)
         return math.sqrt(sum)
 
-vec = Vec([1,2,3])
-print(vec.norm(2))
+# vec = Vec([1,2,3])
+# print(vec.norm(2))
         
 
 # %% [markdown]
