@@ -397,15 +397,13 @@ class Vec:
         return str(self.elements) # does NOT need further implementation
 
     def norm(self, p):
-        #p = int
-        #out = float
-        #norm = 
         sum = 0.0
-        if isinstance(p) == Vec:
-            for element in p:
-                sum += pow(element, 2)
-            return math.sqrt(sum)
+        for element in self.elements:
+            sum += pow(element, p)
+        return math.sqrt(sum)
 
+vec = Vec([1,2,3])
+print(vec.norm(2))
         
 
 # %% [markdown]
@@ -538,13 +536,13 @@ def solve_np(A, b):
         return len(A) - Matrix(A).rank() 
     
 
-m = Matrix([[1, 2, 2],
-           [3, 3, 1],
-           [3, 4, 1]])
+# m = Matrix([[1, 2, 2],
+#            [3, 3, 1],
+#            [3, 4, 1]])
 
-vec = Vec([1, 1, 1])
+# vec = Vec([1, 1, 1])
 
-print(solve_np(m, vec))
+# print(solve_np(m, vec))
 
 # %% [markdown]
 # #### Problem 3
