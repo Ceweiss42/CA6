@@ -841,9 +841,23 @@ def solve_tp(A, b):
 # # Implement the method `is_independent(S)` that returns `True` if the set `S` of `Vec` objects is linearly **independent**, otherwise returns `False`.
 
 # # %%
-# def is_independent(S):
-#     #todo
-#     pass
+def is_independent(S):
+    # Solve using no pivoting rref
+    
+    # Forming the matrix
+    matrix = []
+    for i in range(0, len(S.elements[0])):
+        temp = []
+        for j in range(0, len(S.elements)):
+            temp.append(matrix[j][i])
+        matrix.append(temp)
+            
+    zero_vector = Vec([0 for i in range(len(S.elements))])
+    sol = _rref(matrix, zero_vector)
+    for num in sol:
+        if num != 0:
+            return True
+    return False
 
 # # %%
 # """TESTER CELL"""
