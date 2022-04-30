@@ -426,6 +426,8 @@ class Vec:
 #     - If the system has infinitely many solutions, it returns the number of free variables (`int`) in the solution.
 
 # %%
+from copy import deepcopy
+
 def find_num_of_leading_zero(row):
     ans = 0
     for num in row:
@@ -504,14 +506,15 @@ def _rref(A, b):
 # print(_rref(m, vec))
 
 def solve_np(A, b):
+    original_A = deepcopy(A)
     aug_matrix = _rref(A, b)
     
     # print(aug_matrix)
 
-    if A.rank() < aug_matrix.rank():
+    if original_A.rank() < aug_matrix.rank():
         return None
 
-    elif A.rank() == aug_matrix.rank():
+    elif original_A.rank() == aug_matrix.rank() == len(original_A.rowsp[0]):
         variable_table = {}
         solutions = []
         for i, row in enumerate(reversed(aug_matrix.rowsp)):
@@ -543,7 +546,7 @@ def solve_np(A, b):
         return Vec(solutions)
 
     else:
-        return len(A) - Matrix(A).rank() 
+        return len(original_A.rowsp[0]) - original_A.rank() 
     
 
 # m = Matrix([[1, 2, 2],
@@ -623,16 +626,15 @@ def partial_pivot(aug_matrix, pivot_index):
     return aug_matrix
 
 def solve_pp(A, b):
-    #todo
+    original_A = deepcopy(A)
     aug_matrix = _rref_pp(A, b)
     
-    
+    # print(aug_matrix)
 
-    if A.rank() < aug_matrix.rank():
+    if original_A.rank() < aug_matrix.rank():
         return None
 
-    elif A.rank() == aug_matrix.rank():
-        print(aug_matrix)
+    elif original_A.rank() == aug_matrix.rank() == len(original_A.rowsp[0]):
         variable_table = {}
         solutions = []
         for i, row in enumerate(reversed(aug_matrix.rowsp)):
@@ -664,15 +666,15 @@ def solve_pp(A, b):
         return Vec(solutions)
 
     else:
-        return len(A) - Matrix(A).rank() 
+        return len(original_A.rowsp[0]) - original_A.rank() 
 
-m = Matrix([[1, 2, 2],
-           [3, 3, 1],
-           [3, 4, 1]])
+# m = Matrix([[1, 2, 2],
+#            [3, 3, 1],
+#            [3, 4, 1]])
 
-vec = Vec([1, 1, 1])
+# vec = Vec([1, 1, 1])
 
-print(solve_pp(m, vec))
+# print(solve_pp(m, vec))
 
 # %% [markdown]
 # #### Problem 4
@@ -689,14 +691,15 @@ def _rref_tp(A):
     pass
 
 def solve_tp(A, b):
+    original_A = deepcopy(A)
     aug_matrix = _rref_tp(A, b)
     
-    
+    # print(aug_matrix)
 
-    if A.rank() < aug_matrix.rank():
+    if original_A.rank() < aug_matrix.rank():
         return None
 
-    elif A.rank() == aug_matrix.rank():
+    elif original_A.rank() == aug_matrix.rank() == len(original_A.rowsp[0]):
         variable_table = {}
         solutions = []
         for i, row in enumerate(reversed(aug_matrix.rowsp)):
@@ -721,14 +724,14 @@ def solve_tp(A, b):
                     elif col != 0:
                         unknown_variables = k
                 
-                print(sum_of_known_variables)
+                # print(sum_of_known_variables)
                 solutions.insert(0,(constant-sum_of_known_variables)/row[variables[unknown_variables]])
                 variable_table[unknown_variables] = (constant-sum_of_known_variables)/row[variables[unknown_variables]]
         
         return Vec(solutions)
 
     else:
-        return len(A) - Matrix(A).rank() 
+        return len(original_A.rowsp[0]) - original_A.rank() 
 
 # %% [markdown]
 # #### Master function
@@ -845,32 +848,42 @@ def is_independent(S):
     # Solve using no pivoting rref
     
     # Forming the matrix
+    S = list(S)
     matrix = []
-    for i in range(0, len(S.elements[0])):
+
+
+    for i in range(len(S[0].elements)):
         temp = []
-        for j in range(0, len(S.elements)):
-            temp.append(matrix[j][i])
+        for j in range(len(S)):
+            temp.append(S[j].elements[i])
         matrix.append(temp)
+    
             
-    zero_vector = Vec([0 for i in range(len(S.elements))])
-    sol = _rref(matrix, zero_vector)
-    for num in sol:
-        if num != 0:
-            return True
-    return False
+    zero_vector = Vec([0 for i in range(len(S[0].elements))])
+    sol = solve_np(Matrix(matrix), zero_vector)
+
+    print(sol)
+
+    if isinstance(sol, Vec):
+        for num in sol.elements:
+            if num != 0:
+                return False
+        return True
+    elif isinstance(sol, int):
+        return False
 
 # # %%
 # """TESTER CELL"""
 
-# S1 = {Vec([1, 2]), Vec([2, 3]), Vec([3, 4])}
+S1 = {Vec([1, 2]), Vec([2, 3]), Vec([3, 4])}
 
-# print("S1 is Independent:", is_independent(S1))
-# print("Expected: False")
+print("S1 is Independent:", is_independent(S1))
+print("Expected: False")
 
-# S2 = {Vec([1, 1, 1]), Vec([1, 2, 3]), Vec([1, 3, 6])}
+S2 = {Vec([1, 1, 1]), Vec([1, 2, 3]), Vec([1, 3, 6])}
 
-# print("S2 is Independent:", is_independent(S2))
-# print("Expected: True")
+print("S2 is Independent:", is_independent(S2))
+print("Expected: True")
 
 
 
