@@ -271,30 +271,31 @@ class Matrix:
         # Check for rows that are scalar multiples
         for i, row_curr in enumerate(self.rowsp):
             for j, row_not_curr in enumerate(self.rowsp[i+1:], i+1):
-
-                if row_not_curr[0] % row_curr[0] == 0:
-                    mult = row_not_curr[0] / row_curr[0]
-                    num_of_scalar_mult = 0
-                    for k, col in enumerate(row_curr):
-                        if row_not_curr[k] / row_curr[k] != mult:
-                            break
-                        else:
-                            num_of_scalar_mult += 1
-                    if num_of_scalar_mult == len(row_curr):
-                        scalar_mult_row_table[j] = i
-                        
-                elif row_curr[0] % row_not_curr[0] == 0:
-                    mult = row_curr[0] / row_not_curr[0]
-                    num_of_scalar_mult = 0
-            
-                    for k, col in enumerate(row_curr):
-                        if row_curr[k] / row_not_curr[k] != mult:
-                            break
-                        else:
-                            num_of_scalar_mult += 1
-                    # print(num_of_scalar_mult)
-                    if num_of_scalar_mult == len(row_curr):
-                        scalar_mult_row_table[i] = j
+                if row_curr[0] != 0:
+                    if (row_not_curr[0] / row_curr[0]).is_integer():
+                        mult = row_not_curr[0] / row_curr[0]
+                        num_of_scalar_mult = 0
+                        for k, col in enumerate(row_curr):
+                            if row_not_curr[k] / row_curr[k] != mult:
+                                break
+                            else:
+                                num_of_scalar_mult += 1
+                        if num_of_scalar_mult == len(row_curr):
+                            scalar_mult_row_table[j] = i
+                
+                if row_not_curr[0] != 0:
+                    if (row_curr[0] / row_not_curr[0]).is_integer():
+                        mult = row_curr[0] / row_not_curr[0]
+                        num_of_scalar_mult = 0
+                
+                        for k, col in enumerate(row_curr):
+                            if row_curr[k] / row_not_curr[k] != mult:
+                                break
+                            else:
+                                num_of_scalar_mult += 1
+                        # print(num_of_scalar_mult)
+                        if num_of_scalar_mult == len(row_curr):
+                            scalar_mult_row_table[i] = j
 
         # Constructing reduce matrix
         ans = self.rowsp
@@ -312,10 +313,10 @@ class Matrix:
         self = Matrix(ans)
 
 
-m = Matrix([[4, 2, 2],
-           [2, 1, 1],
-           [8, 4, 4]])
-print(m.rank())
+# m = Matrix([[4, 2, 2],
+#            [2, 1, 1],
+#            [8, 4, 4]])
+# print(m.rank())
 
                     
 
@@ -426,12 +427,12 @@ class Vec:
 
 # %%
 def find_num_of_leading_zero(row):
-        ans = 0
-        for num in row:
-            if num != 0:
-                break
-            ans += 1
-        return ans
+    ans = 0
+    for num in row:
+        if num != 0:
+            break
+        ans += 1
+    return ans
 
 def _rref(A, b):
     aug_matrix = []
@@ -461,7 +462,7 @@ def _rref(A, b):
         aug_matrix.remove(maxRow)
 
     aug_matrix = maxedAug
-    print(aug_matrix)
+    # print(aug_matrix)
 
     # Doing gaussian elimination
     pivot = aug_matrix[0][0]
@@ -505,7 +506,7 @@ def _rref(A, b):
 def solve_np(A, b):
     aug_matrix = _rref(A, b)
     
-    
+    # print(aug_matrix)
 
     if A.rank() < aug_matrix.rank():
         return None
@@ -535,7 +536,7 @@ def solve_np(A, b):
                     elif col != 0:
                         unknown_variables = k
                 
-                print(sum_of_known_variables)
+                # print(sum_of_known_variables)
                 solutions.insert(0,(constant-sum_of_known_variables)/row[variables[unknown_variables]])
                 variable_table[unknown_variables] = (constant-sum_of_known_variables)/row[variables[unknown_variables]]
         
@@ -566,44 +567,60 @@ def solve_np(A, b):
 def _rref_pp(A, b):
     aug_matrix = []
     # Forming the augmented matrix
-    for i, row in enumerate(A):
+    for i, row in enumerate(A.rowsp):
         temp = row
-        temp.append([b[i]])
+        temp.append(b.elements[i])
         aug_matrix.append(temp)
 
-    #switch rows into nice order
-    
-    maxedAug = []
+    # print(aug_matrix)
+    # Sort row
+    aug_matrix = partial_pivot(aug_matrix, 0)
+    # print(aug_matrix)
 
-    while(len(aug_matrix) > 0):
-        maxRow = aug_matrix[0]
-        for row in aug_matrix:
-            if row[0] > maxRow[0]:
-                maxRow = row
-        maxedAug.append(maxRow)
-        aug_matrix.remove(maxRow)
-
-    aug_matrix = maxedAug
-
+    # Doing gaussian elimination
     pivot = aug_matrix[0][0]
     pivot_index = 0
-    row_index = 0
     for i, row in enumerate(aug_matrix):
         if i != 0:
-            alpha = row[0]/pivot
-            for j, col in enumerate(row[pivot_index:], i):
-                col = col - (alpha/pivot) * (aug_matrix[pivot_index][j])
+            aug_matrix = partial_pivot(aug_matrix, pivot_index)
+            # print(aug_matrix)
+            # Need to add another loop here
+            for j, row_not_pivot in enumerate(aug_matrix[i:]):
+                
+                alpha = row_not_pivot[pivot_index]
+                # print(alpha)
+                # print(row[pivot_index:])
+                for k, col in enumerate(row_not_pivot[pivot_index:], pivot_index):
+                    # print(k)
+                    # print((alpha/pivot) * (aug_matrix[pivot_index][j]))
+                    row_not_pivot[k] = col - (alpha/pivot) * (aug_matrix[pivot_index][k])
+                    # print(col)
             pivot = aug_matrix[i][i]
             pivot_index = i
         
-        row_index += 1
-        maxRow = aug_matrix[row_index]
-        for row in aug_matrix:
-            if row[row_index] > maxRow[row_index]:
-                maxRow,row = row,maxRow
-
-    
+    # print(aug_matrix)
     return Matrix(aug_matrix)
+
+def partial_pivot(aug_matrix, pivot_index):
+    # print(aug_matrix)
+
+    maxRow = aug_matrix[pivot_index]
+    maxRowIndex = pivot_index
+    swap = False
+    for i, row in enumerate(aug_matrix[pivot_index + 1:], pivot_index + 1):
+        print(row)
+        if row[pivot_index] > maxRow[pivot_index]:
+            maxRow = row
+            maxRowIndex = i
+            swap = True
+
+    if swap:
+        temp = aug_matrix[pivot_index]
+        aug_matrix[pivot_index] = maxRow
+        aug_matrix[maxRowIndex] = temp
+
+
+    return aug_matrix
 
 def solve_pp(A, b):
     #todo
@@ -615,6 +632,7 @@ def solve_pp(A, b):
         return None
 
     elif A.rank() == aug_matrix.rank():
+        print(aug_matrix)
         variable_table = {}
         solutions = []
         for i, row in enumerate(reversed(aug_matrix.rowsp)):
@@ -639,7 +657,7 @@ def solve_pp(A, b):
                     elif col != 0:
                         unknown_variables = k
                 
-                print(sum_of_known_variables)
+                # print(sum_of_known_variables)
                 solutions.insert(0,(constant-sum_of_known_variables)/row[variables[unknown_variables]])
                 variable_table[unknown_variables] = (constant-sum_of_known_variables)/row[variables[unknown_variables]]
         
@@ -647,6 +665,14 @@ def solve_pp(A, b):
 
     else:
         return len(A) - Matrix(A).rank() 
+
+m = Matrix([[1, 2, 2],
+           [3, 3, 1],
+           [3, 4, 1]])
+
+vec = Vec([1, 1, 1])
+
+print(solve_pp(m, vec))
 
 # %% [markdown]
 # #### Problem 4
