@@ -34,6 +34,7 @@
 # %%
 # COPY-PASTE YOUR Matrix AND Vec CLASSES TO THIS CELL. 
 import math
+from copy import deepcopy
 
 class Matrix:
     
@@ -252,65 +253,63 @@ class Matrix:
         return this_rows == other_rows and this_cols == other_cols
 
     
+    def find_num_of_leading_zero(self, row):
+        ans = 0
+        for num in row:
+            if num != 0:
+                break
+            ans += 1
+        return ans
+
     def rank(self):
         rank = 0
-        self.reduce_scalar_mult()
+        
+        # self.reduce_scalar_mult()
+
+        aug_matrix = deepcopy(self.rowsp)
+
+        maxedAug = []
+
+        while(len(aug_matrix) > 0):
+            maxRow = aug_matrix[0]
+            for row in aug_matrix:
+                if self.find_num_of_leading_zero(row) < self.find_num_of_leading_zero(maxRow):
+                    maxRow = row
+            maxedAug.append(maxRow)
+            aug_matrix.remove(maxRow)
+
+        aug_matrix = maxedAug
+        # print(aug_matrix)
+
+        # Doing gaussian elimination
+        pivot = aug_matrix[0][0]
+        pivot_index = 0
+        for i, row in enumerate(aug_matrix):
+            print(aug_matrix)
+            if i != 0 and pivot_index < len(self.colsp) - 1:
+                # Need to add another loop here
+                for j, row_not_pivot in enumerate(aug_matrix[i:]):
+                    alpha = row_not_pivot[pivot_index]
+                    # print(alpha)
+                    # print(row[pivot_index:])
+                    if pivot != 0:
+                        for k, col in enumerate(row_not_pivot[pivot_index:], pivot_index):
+                            # print(k)
+                            # print((alpha/pivot) * (aug_matrix[pivot_index][j]))
+                            row_not_pivot[k] = col - (alpha/pivot) * (aug_matrix[pivot_index][k])
+                            # print(col)
+                pivot = aug_matrix[i][i]
+                pivot_index = i
+            
+        # print(aug_matrix)
+
+
         zero_vector = [0 for i in range(len(self.rowsp[0]))]
-        for row in self.rowsp:
+        for row in aug_matrix:
             if row != zero_vector:
                 rank += 1
         return rank
     
-
-
-    # This code is not tested yet, may contain a lot of bugs
-    def reduce_scalar_mult(self):
-        # Use to construct reduce matrix, the first number is the larger row
-        scalar_mult_row_table = {} 
-
-        # Check for rows that are scalar multiples
-        for i, row_curr in enumerate(self.rowsp):
-            for j, row_not_curr in enumerate(self.rowsp[i+1:], i+1):
-                if row_curr[0] != 0:
-                    if (row_not_curr[0] / row_curr[0]).is_integer():
-                        mult = row_not_curr[0] / row_curr[0]
-                        num_of_scalar_mult = 0
-                        for k, col in enumerate(row_curr):
-                            if row_not_curr[k] / row_curr[k] != mult:
-                                break
-                            else:
-                                num_of_scalar_mult += 1
-                        if num_of_scalar_mult == len(row_curr):
-                            scalar_mult_row_table[j] = i
-                
-                if row_not_curr[0] != 0:
-                    if (row_curr[0] / row_not_curr[0]).is_integer():
-                        mult = row_curr[0] / row_not_curr[0]
-                        num_of_scalar_mult = 0
-                
-                        for k, col in enumerate(row_curr):
-                            if row_curr[k] / row_not_curr[k] != mult:
-                                break
-                            else:
-                                num_of_scalar_mult += 1
-                        # print(num_of_scalar_mult)
-                        if num_of_scalar_mult == len(row_curr):
-                            scalar_mult_row_table[i] = j
-
-        # Constructing reduce matrix
-        ans = self.rowsp
-        num_of_removed_items = 0
-        removed_items = scalar_mult_row_table.keys()
-        for item in sorted(removed_items, reverse=True):
-            del ans[item]
-
-        # for pair in scalar_mult_row_table.items():
-        #     if pair[0] not in removed_items:
-        #         ans.pop(pair[0] - num_of_removed_items)
-        #         num_of_removed_items += 1
-        #         removed_items.append(pair[0])
-        
-        self = Matrix(ans)
 
 
 # m = Matrix([[4, 2, 2],
@@ -409,8 +408,8 @@ class Vec:
     def norm(self, p):
         sum = 0.0
         for element in self.elements:
-            sum += pow(element, p)
-        return math.sqrt(sum)
+            sum += pow(abs(element), p)
+        return pow(sum, 1/p)
 
 # vec = Vec([1,2,3])
 # print(vec.norm(2))
@@ -426,7 +425,6 @@ class Vec:
 #     - If the system has infinitely many solutions, it returns the number of free variables (`int`) in the solution.
 
 # %%
-from copy import deepcopy
 
 def find_num_of_leading_zero(row):
     ans = 0
@@ -453,13 +451,6 @@ def _rref(A, b):
         for row in aug_matrix:
             if find_num_of_leading_zero(row) < find_num_of_leading_zero(maxRow):
                 maxRow = row
-            # elif find_num_of_leading_zero(row) == find_num_of_leading_zero(maxRow)]:
-            #     for i in range(len(row)):
-            #         if row[i] > maxRow[i]:
-            #             maxRow = row
-            #             break
-            #         elif row[i] < maxRow[i]:
-            #             break
         maxedAug.append(maxRow)
         aug_matrix.remove(maxRow)
 
@@ -469,21 +460,24 @@ def _rref(A, b):
     # Doing gaussian elimination
     pivot = aug_matrix[0][0]
     pivot_index = 0
-    for i, row in enumerate(aug_matrix):
-        if i != 0:
+    for i, row in enumerate(aug_matrix[:-1]):
+        if pivot_index < len(A.colsp):
+            # print(aug_matrix)
+            # print(pivot_index)
+            # print(aug_matrix[i+1:])
+            # print(aug_matrix)
             # Need to add another loop here
-            for j, row_not_pivot in enumerate(aug_matrix[i:]):
+            for j, row_not_pivot in enumerate(aug_matrix[i+1:]):
                 
                 alpha = row_not_pivot[pivot_index]
                 # print(alpha)
                 # print(row[pivot_index:])
                 for k, col in enumerate(row_not_pivot[pivot_index:], pivot_index):
-                    # print(k)
                     # print((alpha/pivot) * (aug_matrix[pivot_index][j]))
-                    row_not_pivot[k] = col - (alpha/pivot) * (aug_matrix[pivot_index][k])
+                    row_not_pivot[k] = row_not_pivot[k] - (alpha/pivot) * (row[k])
                     # print(col)
-            pivot = aug_matrix[i][i]
-            pivot_index = i
+            pivot = aug_matrix[i+1][i+1]
+            pivot_index = i + 1
         
     # print(aug_matrix)
     return Matrix(aug_matrix)
@@ -583,23 +577,31 @@ def _rref_pp(A, b):
     # Doing gaussian elimination
     pivot = aug_matrix[0][0]
     pivot_index = 0
-    for i, row in enumerate(aug_matrix):
-        if i != 0:
-            aug_matrix = partial_pivot(aug_matrix, pivot_index)
-            # print(aug_matrix)
+    for i, row in enumerate(aug_matrix[:-1]):
+        if pivot_index < len(A.colsp):
+            print(aug_matrix)
+            print(pivot_index)
+            print(pivot)
+            # print(aug_matrix[i+1:])
             # Need to add another loop here
-            for j, row_not_pivot in enumerate(aug_matrix[i:]):
+            for j, row_not_pivot in enumerate(aug_matrix[i+1:]):
                 
                 alpha = row_not_pivot[pivot_index]
                 # print(alpha)
                 # print(row[pivot_index:])
                 for k, col in enumerate(row_not_pivot[pivot_index:], pivot_index):
-                    # print(k)
                     # print((alpha/pivot) * (aug_matrix[pivot_index][j]))
-                    row_not_pivot[k] = col - (alpha/pivot) * (aug_matrix[pivot_index][k])
+                    # if i == 1:
+                    #     print(alpha)
+                    #     print(pivot)
+                    row_not_pivot[k] = row_not_pivot[k] - (alpha/pivot) * (row[k])
                     # print(col)
-            pivot = aug_matrix[i][i]
-            pivot_index = i
+            if i == len(aug_matrix) - 2:
+                break
+            aug_matrix = partial_pivot(aug_matrix, pivot_index)
+            pivot_index = i + 1
+            pivot = aug_matrix[pivot_index][pivot_index]
+            
         
     # print(aug_matrix)
     return Matrix(aug_matrix)
@@ -611,7 +613,6 @@ def partial_pivot(aug_matrix, pivot_index):
     maxRowIndex = pivot_index
     swap = False
     for i, row in enumerate(aug_matrix[pivot_index + 1:], pivot_index + 1):
-        print(row)
         if row[pivot_index] > maxRow[pivot_index]:
             maxRow = row
             maxRowIndex = i
@@ -668,13 +669,13 @@ def solve_pp(A, b):
     else:
         return len(original_A.rowsp[0]) - original_A.rank() 
 
-# m = Matrix([[1, 2, 2],
-#            [3, 3, 1],
-#            [3, 4, 1]])
+m = Matrix([[11, -3, 5],
+[-2, -8, 7],
+[8, -4, -17]])
 
-# vec = Vec([1, 1, 1])
+vec = Vec([-4, -148, 144])
 
-# print(solve_pp(m, vec))
+print(_rref_pp(m, vec))
 
 # %% [markdown]
 # #### Problem 4
@@ -686,9 +687,19 @@ def solve_pp(A, b):
 #     - If the system has infinitely many solutions, it returns the number of free variables (`int`) in the solution.
 
 # %%
-def _rref_tp(A):
-    # todo
+def _rref_tp(A, b):
+    aug_matrix = []
+    index_vector = [i for i in range(len(A.rowsp[0]))]
+    index_vector.append(0)
+    aug_matrix.append(index_vector)
+
+    # Forming the augmented matrix
+    for i, row in enumerate(A.rowsp):
+        temp = row
+        temp.append(b.elements[i])
+        aug_matrix.append(temp)
     pass
+
 
 def solve_tp(A, b):
     original_A = deepcopy(A)
@@ -739,21 +750,21 @@ def solve_tp(A, b):
 # The following function is the master function that will be called by the CodePost tester.  It will be fully functional once you have completed Problems 1 - 4.  No edits are necessary.
 
 # %%
-# import enum
+import enum
 
-# class GaussSolvers(enum.Enum):
-#     np = 0
-#     pp = 1
-#     tp = 2
+class GaussSolvers(enum.Enum):
+    np = 0
+    pp = 1
+    tp = 2
     
     
-# def solve(A, b, solver = GaussSolvers.np):
-#     if solver == GaussSolvers.np:
-#         return solve_np(A, b)
-#     elif solver == GaussSolvers.pp:
-#         return solve_pp(A, b)
-#     elif solver == GaussSolvers.tp:
-#         return solve_tp(A, b)
+def solve(A, b, solver = GaussSolvers.np):
+    if solver == GaussSolvers.np:
+        return solve_np(A, b)
+    elif solver == GaussSolvers.pp:
+        return solve_pp(A, b)
+    elif solver == GaussSolvers.tp:
+        return solve_tp(A, b)
 
 # # %%
 # """TESTER CELL #1"""
@@ -875,15 +886,15 @@ def is_independent(S):
 # # %%
 # """TESTER CELL"""
 
-S1 = {Vec([1, 2]), Vec([2, 3]), Vec([3, 4])}
+# S1 = {Vec([1, 2]), Vec([2, 3]), Vec([3, 4])}
 
-print("S1 is Independent:", is_independent(S1))
-print("Expected: False")
+# print("S1 is Independent:", is_independent(S1))
+# print("Expected: False")
 
-S2 = {Vec([1, 1, 1]), Vec([1, 2, 3]), Vec([1, 3, 6])}
+# S2 = {Vec([1, 1, 1]), Vec([1, 2, 3]), Vec([1, 3, 6])}
 
-print("S2 is Independent:", is_independent(S2))
-print("Expected: True")
+# print("S2 is Independent:", is_independent(S2))
+# print("Expected: True")
 
 
 
